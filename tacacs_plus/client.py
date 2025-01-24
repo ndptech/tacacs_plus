@@ -221,6 +221,19 @@ class TACACSClient(object):
                 ]))
                 if reply.flags == TAC_PLUS_CONTINUE_FLAG_ABORT:
                     reply.status = TAC_PLUS_AUTHEN_STATUS_FAIL
+            if authen_type == TAC_PLUS_AUTHEN_TYPE_ASCII and reply.getdata:
+                response = input(reply.server_msg)
+                packet = self.send(TACACSAuthenticationContinue(response),
+                                   TAC_PLUS_AUTHEN,
+                                   packet.seq_no + 1)
+                reply = TACACSAuthenticationReply.unpacked(packet.body)
+                logger.debug('\n'.join([
+                    reply.__class__.__name__,
+                    'recv header <%s>' % packet.header,
+                    'recv body <%s>' % reply
+                ]))
+                if reply.flags == TAC_PLUS_CONTINUE_FLAG_ABORT:
+                    reply.status = TAC_PLUS_AUTHEN_STATUS_FAIL
 
         return reply
 
